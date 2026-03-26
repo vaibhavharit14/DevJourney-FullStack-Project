@@ -4,9 +4,10 @@ import { resourceSchema } from "@/lib/validations";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const validated = resourceSchema.partial().parse(body);
 
@@ -25,7 +26,7 @@ export async function PUT(
     }
 
     const updated = await prisma.resource.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: { tags: true },
     });
@@ -41,11 +42,12 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.resource.delete({
-      where: { id: params.id },
+      where: { id },
     });
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -4,11 +4,12 @@ import { entrySchema } from "@/lib/validations";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const entry = await prisma.entry.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         tags: true,
         project: true,
@@ -28,14 +29,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const validated = entrySchema.parse(body);
 
     const updated = await prisma.entry.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: validated.title,
         date: validated.date,
@@ -66,11 +68,12 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.entry.delete({
-      where: { id: params.id },
+      where: { id },
     });
     return NextResponse.json({ success: true });
   } catch (error) {
